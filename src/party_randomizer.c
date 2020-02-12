@@ -164,6 +164,7 @@ static void rndPkmn(struct Pokemon* mon) {
     u32 xpa, xpb, xpc, xpd;
     f32 hpr, xpr;
     u16 prevHp;
+    u32 status;
     u16 n = Random() % (NUM_SPECIES - 1) + 1;
     
 
@@ -173,6 +174,10 @@ static void rndPkmn(struct Pokemon* mon) {
     u8 nickname[POKEMON_NAME_LENGTH];
     s32 i;
     u16 heldItem = GetMonData(mon, MON_DATA_HELD_ITEM, NULL);
+    species = GetMonData(mon, MON_DATA_SPECIES, 0);
+    //skip eggs
+    if (species == SPECIES_EGG || mon->box.isEgg) return;
+    status = mon->status;
     GetMonData(mon, MON_DATA_NICKNAME, nickname);
     
     //if we got bad species id (?? pokemon), try to random again. If that doesn't work, just choose one.
@@ -181,7 +186,7 @@ static void rndPkmn(struct Pokemon* mon) {
     //calculate XP and HP percentages
     level = mon->level;
     exp = GetMonData(mon, MON_DATA_EXP, NULL);
-    species = GetMonData(mon, MON_DATA_SPECIES, 0);
+    
     nextLevel = GetMonData(mon, MON_DATA_LEVEL, 0) + 1;
     xpa = gExperienceTables[gBaseStats[species].growthRate][level];
     xpb = gExperienceTables[gBaseStats[species].growthRate][nextLevel];
@@ -230,4 +235,5 @@ static void rndPkmn(struct Pokemon* mon) {
     CalculateMonStats(mon);
     mon->hp = mon->maxHP * hpr + 0.5f;
     if (mon->hp == 0 && prevHp > 0) mon->hp = 1;
+    mon->status = status;
 }
